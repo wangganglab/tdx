@@ -62,16 +62,15 @@ type Server struct {
 func New(opts ...Option) (*Server, error) {
 	cfg := &serverConfig{
 		addr:     ":8080",
-		hosts:    tdx.SortHosts(),
+		hosts:    tdx.Hosts,
 		poolSize: 1,
 	}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 
-	// 每次建连(含断线重连)重新测速: 自动切到当时最快的服务器
 	pool, err := tdx.NewPool(func() (*tdx.Client, error) {
-		return tdx.DialHostsRange(tdx.SortHosts(), cfg.options...)
+		return tdx.DialHostsRange(cfg.hosts, cfg.options...)
 	}, cfg.poolSize)
 	if err != nil {
 		return nil, err
